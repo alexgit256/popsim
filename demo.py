@@ -26,7 +26,7 @@ pop = Population(seed=12345)
 pop.set_environment(env)
 pop.initialize_random(8192, max_start_age=60)
 
-YEARS = 110
+YEARS = 150
 pop.step(YEARS)
 
 # --- Inspect people ---
@@ -54,10 +54,9 @@ plt.ylabel("Population")
 plt.grid(True)
 
 bh = pop.births_history()
+dh = pop.deaths_history()
 plt.plot(x, bh, label="Births")
-plt.plot(x, pop.deaths_history(), label="Deaths")
+plt.plot(x, dh, label="Deaths")
 plt.legend()
 
 plt.show()
-
-print(bh)
