@@ -1,0 +1,10 @@
+pyproject.toml
+setup.py
+src/popsim/__init__.py
+src/popsim/popsim.cpp
+src/popsim/population.cpp
+src/popsim/population.hpp
+src/popsim.egg-info/PKG-INFO
+src/popsim.egg-info/SOURCES.txt
+src/popsim.egg-info/dependency_links.txt
+src/popsim.egg-info/top_level.txt
