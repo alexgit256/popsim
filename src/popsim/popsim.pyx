@@ -60,6 +60,41 @@ cdef class PyEnvironment:
     @age_of_consent.setter
     def age_of_consent(self, v): self._env.age_of_consent = <unsigned int> v
 
+    # --- NEW: mutation & fertility windows ---
+    @property
+    def mutation_bits(self):
+        return self._env.mutation_bits
+    @mutation_bits.setter
+    def mutation_bits(self, v):
+        self._env.mutation_bits = <unsigned int> v
+
+    @property
+    def female_fertility_min(self):
+        return self._env.female_fertility_min
+    @female_fertility_min.setter
+    def female_fertility_min(self, v):
+        self._env.female_fertility_min = <unsigned int> v
+
+    @property
+    def female_fertility_max(self):
+        return self._env.female_fertility_max
+    @female_fertility_max.setter
+    def female_fertility_max(self, v):
+        self._env.female_fertility_max = <unsigned int> v
+    @property
+    def male_fertility_min(self):
+        return self._env.male_fertility_min
+    @male_fertility_min.setter
+    def male_fertility_min(self, v):
+        self._env.male_fertility_min = <unsigned int> v
+
+    @property
+    def male_fertility_max(self):
+        return self._env.male_fertility_max
+    @male_fertility_max.setter
+    def male_fertility_max(self, v):
+        self._env.male_fertility_max = <unsigned int> v
+
     cdef Environment* ptr(self):
         return &self._env
 

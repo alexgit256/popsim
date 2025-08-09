@@ -13,6 +13,11 @@ cdef extern from "population.hpp" namespace "popsim":
         double marriage_probability
         double conceiving_probability
         unsigned int age_of_consent
+        unsigned int mutation_bits
+        unsigned int female_fertility_min
+        unsigned int female_fertility_max
+        unsigned int male_fertility_min
+        unsigned int male_fertility_max
         Environment()
 
     cdef cppclass Person:

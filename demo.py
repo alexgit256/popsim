@@ -32,7 +32,7 @@ pop.step(YEARS)
 # --- Inspect people ---
 persons = pop.persons()
 print(f"Population now: {len(persons)}")
-# print("Sample person:", vars(persons[0]))
+print("Sample person:", (persons[0]))
 
 # --- Plot metrics ---
 mean_age = pop.mean_age_history()

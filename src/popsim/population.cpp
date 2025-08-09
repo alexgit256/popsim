@@ -1,5 +1,6 @@
 #include "population.hpp"
 #include <cmath>
+#include <unordered_set>
 
 #if defined(__GNUC__) || defined(__clang__)
 static inline int popcount64(uint64_t x) { return __builtin_popcountll(x); }
@@ -150,6 +151,8 @@ void Population::conceiving() {
         if (mother.gender != 0u) continue; // female only
         if (!mother.married()) continue;
         if (mother.age < env_.age_of_consent) continue;
+        // NEW fertility window for mother
+        if (!fertile_female(mother.age)) continue;
         // find partner index (linear scan; for big populations, consider a map)
         uint64_t pid = mother.partner_id();
         int32_t father_idx = -1;
@@ -161,6 +164,8 @@ void Population::conceiving() {
         if (father.gender != 1u) continue;
         if (father.age < env_.age_of_consent) continue;
         if (incest_blocked(mother, father)) continue;
+        // NEW fertility window for father
+        if (!fertile_male(father.age)) continue;
         if (U(rng_) < p_child) add_child(i, (uint32_t)father_idx);
     }
 }
@@ -174,7 +179,11 @@ void Population::polygamous_conceiving() {
     // collect eligible males
     std::vector<uint32_t> males;
     for (uint32_t i = 0; i < (uint32_t)people_.size(); ++i) {
-        if (people_[i].gender == 1u && people_[i].age >= env_.age_of_consent) males.push_back(i);
+        if (people_[i].gender == 1u &&
+            people_[i].age >= env_.age_of_consent &&
+            fertile_male(people_[i].age)) {
+            males.push_back(i);
+        }
     }
     if (males.empty()) return;
     std::uniform_int_distribution<size_t> male_pick(0u, males.size() - 1u);
@@ -183,6 +192,8 @@ void Population::polygamous_conceiving() {
         auto &mother = people_[i];
         if (mother.gender != 0u) continue;
         if (mother.age < env_.age_of_consent) continue;
+        // NEW fertility window for mother
+        if (!fertile_female(mother.age)) continue;
         uint32_t father_idx = males[male_pick(rng_)];
         auto &father = people_[father_idx];
         if (incest_blocked(mother, father)) continue;
@@ -206,9 +217,23 @@ void Population::add_child(uint32_t mother_idx, uint32_t father_idx) {
     child.age = 0u;
     child.gender = (mask_dist(rng_) & 1ull) ? 1u : 0u; // 50/50
     child.marital = 0ull;
+    // NEW: mutate newborn genome by flipping exactly env_.mutation_bits positions
+    mutate_child(child, env_.mutation_bits);
     births_this_year++;
 
     people_.push_back(child);
+}
+
+void Population::mutate_child(Person &child, uint32_t k) {
+    if (k == 0) return;
+    std::unordered_set<int> pos;
+    pos.reserve(k);
+    std::uniform_int_distribution<int> pick(0, 127);
+    while ((uint32_t)pos.size() < k) pos.insert(pick(rng_));
+    for (int b : pos) {
+        if (b < 64) child.g0 ^= (1ull << b);
+        else        child.g1 ^= (1ull << (b - 64));
+    }
 }
 
 } // namespace popsim

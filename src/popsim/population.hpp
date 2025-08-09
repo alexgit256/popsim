@@ -7,7 +7,6 @@
 #include <limits>
 
 namespace popsim {
-
 struct Environment {
     double resources; // arbitrary units
     uint32_t incest_threshold; // maximum allowed equal bits across 128-bit genome; if > threshold => block
@@ -16,11 +15,23 @@ struct Environment {
     double marriage_probability; // base probability per candidate pair
     double conceiving_probability; // base probability per couple per year
     uint32_t age_of_consent; // years
+    // NEW: genetics + fertility knobs
+    uint32_t mutation_bits;          // flip exactly this many bits in newborn genome (0 = off)
+    uint32_t female_fertility_min;   // inclusive
+    uint32_t female_fertility_max;   // inclusive
+    uint32_t male_fertility_min;     // inclusive
+    uint32_t male_fertility_max;     // inclusive
 
     Environment()
         : resources(0.0), incest_threshold(64), polygamy(false),
           marriage_probability(0.0), conceiving_probability(0.0), age_of_consent(18) {
         for (int i = 0; i < 128; ++i) dying_curve[i] = 0.0f;
+        // defaults for new fields
+        mutation_bits = 0;
+        female_fertility_min = 15;
+        female_fertility_max = 45;
+        male_fertility_min   = 15;
+        male_fertility_max   = 70;
     }
 };
 
@@ -91,6 +102,17 @@ private:
     void conceiving();
     void polygamous_conceiving();
     void add_child(uint32_t mother_idx, uint32_t father_idx);
+
+    // NEW: helpers
+    // Flip exactly k distinct bit positions across child's 128-bit genome
+    void mutate_child(Person &child, uint32_t k);
+    // Age-based fertility windows
+    inline bool fertile_female(uint32_t age) const {
+        return age >= env_.female_fertility_min && age <= env_.female_fertility_max;
+    }
+    inline bool fertile_male(uint32_t age) const {
+        return age >= env_.male_fertility_min   && age <= env_.male_fertility_max;
+    }
 };
 
 } // namespace popsim
